@@ -1,6 +1,7 @@
 # https://github.com/joshcangit/chromium-latest-linux
 # https://github.com/GoogleContainerTools/skaffold
 # https://github.com/earthly/earthly
+# https://juliusgamanyi.com/2022/04/27/run-github-actions-workflows-locally-using-act/
 
 brew install act --HEAD
 

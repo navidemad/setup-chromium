@@ -1,9 +1,4 @@
 ARG ACT_IMAGE
 FROM $ACT_IMAGE
 
-RUN apt-get install -y unzip
-# RUN apt-get update -qq && apt-get install -y curl git unzip ruby docker.io && rm -rf /var/lib/apt/lists/*
-
-# WORKDIR /github/workspace
-
-# CMD ["tail", "-f", "/dev/null"]
+RUN apt-get update -qq && apt-get install -y curl git unzip ruby docker.io && rm -rf /var/lib/apt/lists/*
