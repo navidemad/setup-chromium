@@ -7,6 +7,11 @@ brew install act --HEAD
 
 docker-compose up --build --force-recreate
 
+# For mac
+```
+rvm reinstall 3.3.0 --with-openssl-dir=$(brew --prefix openssl) --with-readline-dir=$(brew --prefix readline) --with-libyaml-dir=$(brew --prefix libyaml) --disable-dtrace --disable-docs
+```
+
 # Development
 
 Here's a step-by-step guide:

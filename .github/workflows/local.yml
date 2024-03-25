@@ -1,10 +1,10 @@
-name: local
+name: Tests (local with act tool)
 
 on: {}
 
 jobs:
-  local:
-    name: local
+  act:
+    name: act
     runs-on: ${{ env.act_image_modified }}
     steps:
       - name: 📥 Checkout Git Code
@@ -24,4 +24,4 @@ jobs:
         with:
           ruby-version: "3.3"
       - name: 💎 Run rails dummy app to test Chromium
-        run: ruby test.rb
+        run: ruby scripts/system_tests.rb

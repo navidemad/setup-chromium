@@ -60,6 +60,8 @@ Capybara.register_driver(:custom_cuprite) do |app|
       opts[:window_size] = [600, 400]
       opts[:headless] = browser_headfull ? false : "new"
       opts[:inspector] = browser_headfull ? true : false
+      opts[:process_timeout] = ENV.fetch("CUPRITE_PROCESS_TIMEOUT", 30).to_f
+      opts[:timeout] = ENV.fetch("CUPRITE_TIMEOUT", 60).to_f
       opts[:url_blacklist] = [/\.ico$/]
       opts[:browser_path] = ENV["CHROMIUM_BIN"] if ENV["CHROMIUM_BIN"].present?
     end

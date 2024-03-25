@@ -15,7 +15,8 @@ runs:
     - name: Check prerequisites
       shell: bash
       run: |
-        if ! command -v jar &> /dev/null; then
+        ruby -v
+        if ! command -v unzip &> /dev/null; then
           echo "unzip is required but not installed. Please install unzip." >&2
           exit 1
         fi

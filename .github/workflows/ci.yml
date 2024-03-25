@@ -1,4 +1,4 @@
-name: ci
+name: Tests
 
 on:
   pull_request:
@@ -13,8 +13,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  ci:
-    name: ci
+  tests:
+    name: tests
     strategy:
       fail-fast: true
       matrix:

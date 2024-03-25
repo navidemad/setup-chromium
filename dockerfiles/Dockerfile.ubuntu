@@ -1,4 +1,24 @@
 ARG ACT_IMAGE
 FROM $ACT_IMAGE
 
-RUN apt-get update -qq && apt-get install -y curl git unzip ruby docker.io && rm -rf /var/lib/apt/lists/*
+RUN apt-get update -qq && apt-get install -y curl git unzip && rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update -qq && \
+    apt-get install -y \
+        gpg-agent \
+        software-properties-common \
+        openssl@1.1 \
+        libssl-dev \
+        libreadline-dev \
+        libyaml-dev \
+        pkg-config && \
+    \curl -L https://get.rvm.io | bash -s -- --autolibs=read-fail && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install Ruby, utilizing pkg-config to dynamically configure paths
+RUN /bin/bash -l -c "rvm autolibs disable && rvm requirements && rvm install 3.3.0 --with-openssl-dir=`pkg-config --variable=includedir openssl@1.1` \
+    --with-readline-dir=`pkg-config --variable=includedir readline` \
+    --with-libyaml-dir=`pkg-config --variable=includedir yaml-0.1` \
+    --disable-dtrace --disable-docs && \
+    rbenv global 3.3.0 && \
+    gem install bundler --no-document"
