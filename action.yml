@@ -98,4 +98,4 @@ runs:
         fi
 
         echo "CHROMIUM_DIRECTORY=$chromium_directory" >> $GITHUB_ENV
-        echo "CHROMIUM_BIN=$chromium_directory/chrome-${{ steps.platform.outputs.platform }}" >> $GITHUB_ENV
+        echo "CHROMIUM_BIN=$chromium_directory/chrome-${{ steps.platform.outputs.platform }}/chrome" >> $GITHUB_ENV
