@@ -1,3 +1,4 @@
+
 version: '3'
 services:
   act-runner:
@@ -5,6 +6,4 @@ services:
     volumes:
       - ./:/github/workspace
       - /var/run/docker.sock:/var/run/docker.sock
-    environment:
-      - ACT_JOB=rspec_tests
-    command: ["act", "-P", "ubuntu-latest=catthehacker/ubuntu:act-22.04"]
+    command: ["act", "-j", "run_local", "-P", "ubuntu:latest=catthehacker/ubuntu:act-22.04"]

@@ -12,104 +12,90 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Fetch revision from snapshots and install it locally
+    - name: Check prerequisites
       shell: bash
       run: |
-        command -v unzip >/dev/null || {
-          echo "You need to install \"unzip\" first!"
+        if ! command -v unzip &> /dev/null; then
+          echo "unzip is required but not installed. Please install unzip." >&2
           exit 1
-        }
-
-        if [ "${{ inputs.trunk }}" = "continuous" ]; then
-          CHROMIUM_TRUNK="continuous"
-        elif [ "${{ inputs.trunk }}" = "snapshots" ]; then
-          CHROMIUM_TRUNK="snapshots"
-        else
-          echo "Unknown trunk (allowed: continuous or snapshots)" >&2
+        fi
+        if ! command -v curl &> /dev/null; then
+          echo "curl is required but not installed. Please install curl." >&2
           exit 1
         fi
 
-        if [[ ${OS:-} = Windows_NT ]]; then
-          echo "Windows is not yet supported" >&2
-          exit 1
-        elif [ "$(uname -s)" = "Darwin" ]; then
-          if [ "$(uname -m)" = "arm64" ] && [ "${CHROMIUM_TRUNK}" = "snapshots" ]; then
-            CHROMIUM_ARCH="Mac_Arm"
-          else
-            CHROMIUM_ARCH="Mac"
-          fi
-          CHROMIUM_PLATFORM="mac"
-        else
-          case $(uname -m) in
-          "aarch64" | "arm64")
-            if [ "${CHROMIUM_TRUNK}" = "snapshots" ]; then
-              CHROMIUM_ARCH="Arm"
-            else
-              CHROMIUM_ARCH="Linux"
-            fi
-            ;;
-          "x86_64" | "amd64")
-            CHROMIUM_ARCH="Linux_x64"
-            ;;
-          *)
-            CHROMIUM_ARCH="Linux"
-            ;;
+    - name: Determine platform and architecture
+      id: platform
+      shell: bash
+      run: |
+        os="$(uname -s)"
+        arch="$(uname -m)"
+        case "${{ inputs.trunk }}" in
+          continuous|snapshots) trunk="${{ inputs.trunk }}" ;;
+          *) echo "Unknown trunk. Use 'continuous' or 'snapshots'." >&2; exit 1 ;;
+        esac
+
+        if [[ $os == "Darwin" ]]; then
+          platform="mac"
+          arch=$([[ $arch == "arm64" ]] && echo "Mac_Arm" || echo "Mac")
+        elif [[ $os == "Linux" ]]; then
+          platform="linux"
+          case $arch in
+            "aarch64" | "arm64")
+              if [ "$trunk" = "snapshots" ]; then
+                arch="Arm"
+              else
+                arch="Linux"
+              fi
+              ;;
+            "x86_64" | "amd64") arch="Linux_x64" ;;
+            *) arch="Linux" ;;
           esac
-          CHROMIUM_PLATFORM="linux"
+        else
+          echo "Unsupported OS." >&2
+          exit 1
         fi
 
-        echo "Trunk: ${CHROMIUM_TRUNK}, Arch: ${CHROMIUM_ARCH}, Platform: ${CHROMIUM_PLATFORM}"
+        echo "platform=$platform" >> $GITHUB_OUTPUT
+        echo "arch=$arch" >> $GITHUB_OUTPUT
+        echo "trunk=$trunk" >> $GITHUB_OUTPUT
 
-        CHROMIUM_SNAPSHOT_BASE_URL="https://www.googleapis.com/download/storage/v1/b/chromium-browser-$CHROMIUM_TRUNK/o/$CHROMIUM_ARCH"
-
-        if [ "${{ inputs.revision }}" = "latest" ]; then
-          CHROMIUM_LASTCHANGE_URL="$CHROMIUM_SNAPSHOT_BASE_URL%2FLAST_CHANGE?alt=media"
-          CHROMIUM_REVISION=$(curl --silent -L -f $CHROMIUM_LASTCHANGE_URL)
-          if test -z "$CHROMIUM_REVISION"; then
+    - name: Fetch and install Chromium
+      shell: bash
+      run: |
+        base_url="https://www.googleapis.com/download/storage/v1/b/chromium-browser-${{ steps.platform.outputs.trunk }}/o/${{ steps.platform.outputs.arch }}"
+        revision="${{ inputs.revision }}"
+        if [[ $revision == "latest" ]]; then
+          last_change_url="${base_url}%2FLAST_CHANGE?alt=media"
+          revision=$(curl --silent -L -f $last_change_url)
+          if [[ -z "$revision" ]]; then
             echo "Failed to fetch the latest revision number." >&2
             exit 1
           fi
-          echo "Using latest revision: $CHROMIUM_REVISION"
+          echo "Using latest revision found: $revision"
         else
-          CHROMIUM_REVISION="${{ inputs.revision }}"
-          echo "Using specified revision: $CHROMIUM_REVISION"
+          echo "Using revision specified: $revision"
         fi
 
-        CHROMIUM_SNAPSHOT_ZIP_URL="$CHROMIUM_SNAPSHOT_BASE_URL%2F$CHROMIUM_REVISION%2Fchrome-$CHROMIUM_PLATFORM.zip?alt=media"
-        CHROMIUM_INSTALL_TMP_DIR="/tmp/chromium-$CHROMIUM_REVISION"
+        snapshot_zip_url="${base_url}%2F$revision%2Fchrome-${{ steps.platform.outputs.platform }}.zip?alt=media"
+        install_tmp_dir="/tmp/chromium-$revision"
+        echo "$install_tmp_dir/chromium.zip"
 
-        echo "Downloading Chromium snapshot..."
-        rm -rf "$CHROMIUM_INSTALL_TMP_DIR"
-        mkdir -p "$CHROMIUM_INSTALL_TMP_DIR" || {
-          echo "Failed to create install directory \"$CHROMIUM_INSTALL_TMP_DIR\"" >&2
-          exit 1
-        }
-
-        CHROMIUM_SNAPSHOT_ZIP_FILE="chrome-$CHROMIUM_PLATFORM-$CHROMIUM_REVISION.zip"
-        echo "CHROMIUM_SNAPSHOT_ZIP_FILE: '$CHROMIUM_SNAPSHOT_ZIP_FILE'"
-        curl --silent -L -f "$CHROMIUM_SNAPSHOT_ZIP_URL" --output "$CHROMIUM_INSTALL_TMP_DIR/$CHROMIUM_SNAPSHOT_ZIP_FILE" || {
-          echo "Failed to download Chromium snapshot." >&2
-          exit 1
-        }
+        echo "Downloading Chromium snapshot from ..."
+        rm -rf "$install_tmp_dir" || exit 1
+        mkdir -p "$install_tmp_dir" || exit 1
+        curl --silent -L -f "$snapshot_zip_url" --output "$install_tmp_dir/chromium.zip" || exit 1
 
         echo "Unzipping Chromium snapshot..."
-        unzip -qq "$CHROMIUM_INSTALL_TMP_DIR/$CHROMIUM_SNAPSHOT_ZIP_FILE" -d "$CHROMIUM_INSTALL_TMP_DIR" || {
-          echo "Failed to unzip Chromium snapshot." >&2
-          exit 1
-        }
+        unzip -qq "$install_tmp_dir/chromium.zip" -d "$install_tmp_dir" || exit 1
 
-        ls -laR $CHROMIUM_INSTALL_TMP_DIR
-        echo "Chromium extracted to $CHROMIUM_INSTALL_TMP_DIR/chrome-$CHROMIUM_PLATFORM"
+        chromium_directory="$PWD/chromium-bin"
+        ln -fs "$install_tmp_dir/chrome-${{ steps.platform.outputs.platform }}" "$chromium_directory" || exit 1
 
-        # CHROMIUM_DIRECTORY="$PWD/chromium-bin"
-        # ln -fs "$CHROMIUM_INSTALL_TMP_DIR/chrome-$CHROMIUM_PLATFORM" "$CHROMIUM_DIRECTORY"
+        if [[ ${{ steps.platform.outputs.platform }} == "linux" ]]; then
+          sudo chown root:root "$chromium_directory/chrome_sandbox"
+          sudo chmod 4755 "$chromium_directory/chrome_sandbox"
+        fi
 
-        # if [ "$CHROMIUM_PLATFORM" = "linux" ]; then
-        #   echo "Changing owner and permissions for chrome_sandbox (requires privileges):\n"
-        #   # sudo chown root:root "$CHROMIUM_DIRECTORY/chrome_sandbox"
-        #   # sudo chmod 4755 "$CHROMIUM_DIRECTORY/chrome_sandbox"
-        # end
-
-        # ls -la "$CHROMIUM_DIRECTORY/"
-        # echo "CHROMIUM_DIRECTORY=$CHROMIUM_DIRECTORY" >> $GITHUB_ENV
-        # echo "CHROMIUM_BIN=$CHROMIUM_DIRECTORY/chrome-$CHROMIUM_PLATFORM" >> $GITHUB_ENV
+        echo "CHROMIUM_DIRECTORY=$chromium_directory" >> $GITHUB_ENV
+        echo "CHROMIUM_BIN=$chromium_directory/chrome-${{ steps.platform.outputs.platform }}" >> $GITHUB_ENV

@@ -12,9 +12,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.event.pull_request.head.ref || github.head_ref || github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: read
-
 jobs:
   run:
     name: Run
@@ -26,11 +23,13 @@ jobs:
           - trunk: continuous
             # platforms: ["i386/ubuntu:latest", "ubuntu:latest", "Mac"]
             # platforms: ["i386/ubuntu:latest", "ubuntu:latest", "mac-latest"]
-            platforms: ["buildjet-2vcpu-ubuntu-2204"]
+            # platforms: ["buildjet-2vcpu-ubuntu-2204"]
+            platforms: ["ubuntu:latest"]
           - trunk: snapshots
             # platforms: ["Arm", "i386/ubuntu:latest", "ubuntu:latest", "Mac", "Mac-Arm"]
             # platforms: ["i386/ubuntu:latest", "ubuntu:latest", "mac-latest"]
-            platforms: ["buildjet-2vcpu-ubuntu-2204"]
+            # platforms: ["buildjet-2vcpu-ubuntu-2204"]
+            platforms: ["ubuntu:latest"]
     runs-on: ${{ matrix.platforms }}
     steps:
       - name: 📥 Checkout Git Code
@@ -40,8 +39,8 @@ jobs:
         with:
           revision: "latest"
           trunk: ${{ matrix.trunk }}
-      - name: 🧪 Output CHROMIUM_BIN
+      - name: 🧪 Output CHROMIUM_DIRECTORY and CHROMIUM_BIN
         shell: bash
         run: |
-          echo "Chromium binary path: $CHROMIUM_FOLDER"
-          echo "Chromium direction path: $CHROMIUM_BIN"
+          echo "Chromium direction path: \"$CHROMIUM_DIRECTORY\""
+          echo "Chromium binary path: \"$CHROMIUM_BIN\""
