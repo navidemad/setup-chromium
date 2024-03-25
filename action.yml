@@ -98,17 +98,18 @@ runs:
           exit 1
         }
 
+        ls -laR $CHROMIUM_INSTALL_TMP_DIR
         echo "Chromium extracted to $CHROMIUM_INSTALL_TMP_DIR/chrome-$CHROMIUM_PLATFORM"
 
-        CHROMIUM_DIRECTORY="$PWD/chromium-bin"
-        ln -fs "$CHROMIUM_INSTALL_TMP_DIR/chrome-$CHROMIUM_PLATFORM" "$CHROMIUM_DIRECTORY"
+        # CHROMIUM_DIRECTORY="$PWD/chromium-bin"
+        # ln -fs "$CHROMIUM_INSTALL_TMP_DIR/chrome-$CHROMIUM_PLATFORM" "$CHROMIUM_DIRECTORY"
 
-        if [ "$CHROMIUM_PLATFORM" = "linux" ]; then
-          echo "Changing owner and permissions for chrome_sandbox (requires privileges):\n"
-          # sudo chown root:root "$CHROMIUM_DIRECTORY/chrome_sandbox"
-          # sudo chmod 4755 "$CHROMIUM_DIRECTORY/chrome_sandbox"
-        end
+        # if [ "$CHROMIUM_PLATFORM" = "linux" ]; then
+        #   echo "Changing owner and permissions for chrome_sandbox (requires privileges):\n"
+        #   # sudo chown root:root "$CHROMIUM_DIRECTORY/chrome_sandbox"
+        #   # sudo chmod 4755 "$CHROMIUM_DIRECTORY/chrome_sandbox"
+        # end
 
-        ls -la "$CHROMIUM_DIRECTORY/"
-        echo "CHROMIUM_DIRECTORY=$CHROMIUM_DIRECTORY" >> $GITHUB_ENV
-        echo "CHROMIUM_BIN=$CHROMIUM_DIRECTORY/chrome-$CHROMIUM_PLATFORM" >> $GITHUB_ENV
+        # ls -la "$CHROMIUM_DIRECTORY/"
+        # echo "CHROMIUM_DIRECTORY=$CHROMIUM_DIRECTORY" >> $GITHUB_ENV
+        # echo "CHROMIUM_BIN=$CHROMIUM_DIRECTORY/chrome-$CHROMIUM_PLATFORM" >> $GITHUB_ENV
