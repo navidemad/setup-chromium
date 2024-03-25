@@ -84,6 +84,7 @@ runs:
         if [ "${{ inputs.revision }}" = "latest" ]; then
           CHROMIUM_LASTCHANGE_URL="$CHROMIUM_SNAPSHOT_BASE_URL%2FLAST_CHANGE?alt=media"
           CHROMIUM_REVISION=$(out $CHROMIUM_LASTCHANGE_URL)
+          echo "DEBUG CHROMIUM_LASTCHANGE_URL: $CHROMIUM_LASTCHANGE_URL"
           echo "DEBUG CHROMIUM_REVISION: '$CHROMIUM_REVISION'"
           if test -z "$CHROMIUM_REVISION"; then
             echo "Failed to fetch the latest revision number." >&2
