@@ -15,6 +15,11 @@ runs:
     - name: Fetch revision from snapshots and install it locally
       shell: bash
       run: |
+        command -v unzip >/dev/null || {
+          echo "You need to install \"unzip\" first!"
+          exit 1
+        }
+
         if [ "${{ inputs.trunk }}" = "continuous" ]; then
           CHROMIUM_TRUNK="continuous"
         elif [ "${{ inputs.trunk }}" = "snapshots" ]; then
@@ -57,35 +62,9 @@ runs:
 
         CHROMIUM_SNAPSHOT_BASE_URL="https://www.googleapis.com/download/storage/v1/b/chromium-browser-$CHROMIUM_TRUNK/o/$CHROMIUM_ARCH"
 
-        web() {
-        local list="wget curl"
-        for item in $list;
-        do
-          if [ -z $(command -v $item) ]; then
-            echo $list | sed "s/$item//g"
-          fi
-        done
-        }
-
-        dl() {
-        case $(web) in
-          *wget*) wget -q -O $@;;
-          *curl*) curl -#L -o $@;;
-        esac
-        }
-
-        out() {
-        case $(web) in
-          *curl*) curl --fail -L $@;;
-          *wget*) wget -O - $@;;
-        esac
-        }
-
         if [ "${{ inputs.revision }}" = "latest" ]; then
           CHROMIUM_LASTCHANGE_URL="$CHROMIUM_SNAPSHOT_BASE_URL%2FLAST_CHANGE?alt=media"
-          CHROMIUM_REVISION=$(out $CHROMIUM_LASTCHANGE_URL)
-          echo "DEBUG CHROMIUM_LASTCHANGE_URL: $CHROMIUM_LASTCHANGE_URL"
-          echo "DEBUG CHROMIUM_REVISION: '$CHROMIUM_REVISION'"
+          CHROMIUM_REVISION=$(curl --silent -L -f $CHROMIUM_LASTCHANGE_URL)
           if test -z "$CHROMIUM_REVISION"; then
             echo "Failed to fetch the latest revision number." >&2
             exit 1
@@ -107,25 +86,22 @@ runs:
         }
 
         CHROMIUM_SNAPSHOT_ZIP_FILE="chrome-$CHROMIUM_PLATFORM-$CHROMIUM_REVISION.zip"
-        dl "$CHROMIUM_SNAPSHOT_ZIP_URL" "$CHROMIUM_INSTALL_TMP_DIR/$CHROMIUM_SNAPSHOT_ZIP_FILE" || {
+        echo "CHROMIUM_SNAPSHOT_ZIP_FILE: '$CHROMIUM_SNAPSHOT_ZIP_FILE'"
+        curl --silent -L -f "$CHROMIUM_SNAPSHOT_ZIP_URL" --output "$CHROMIUM_INSTALL_TMP_DIR/$CHROMIUM_SNAPSHOT_ZIP_FILE" || {
           echo "Failed to download Chromium snapshot." >&2
           exit 1
         }
 
         echo "Unzipping Chromium snapshot..."
-        command -v unzip >/dev/null || {
-          echo "You need to install \"unzip\" first!"
-          exit 1
-        }
-
-        unzip -foqq "$CHROMIUM_INSTALL_TMP_DIR/$CHROMIUM_SNAPSHOT_ZIP_FILE" -d "$CHROMIUM_INSTALL_TMP_DIR" || {
+        unzip -qq "$CHROMIUM_INSTALL_TMP_DIR/$CHROMIUM_SNAPSHOT_ZIP_FILE" -d "$CHROMIUM_INSTALL_TMP_DIR" || {
           echo "Failed to unzip Chromium snapshot." >&2
           exit 1
         }
 
         echo "Chromium extracted to $CHROMIUM_INSTALL_TMP_DIR/chrome-$CHROMIUM_PLATFORM"
-        CHROMIUM_INSTALL_DIR_PATH=$PWD/chromium-bin
-        ln -fs "$CHROMIUM_INSTALL_TMP_DIR/chrome-$CHROMIUM_PLATFORM $CHROMIUM_INSTALL_DIR_PATH
+
+        CHROMIUM_INSTALL_DIR_PATH="$PWD/chromium-bin"
+        ln -fsT "$CHROMIUM_INSTALL_TMP_DIR/chrome-$CHROMIUM_PLATFORM" "$CHROMIUM_INSTALL_DIR_PATH"
 
         echo "Changing owner and permissions for chrome_sandbox (requires privileges):\n"
         sudo chown root:root "$CHROMIUM_INSTALL_DIR_PATH/chrome_sandbox"

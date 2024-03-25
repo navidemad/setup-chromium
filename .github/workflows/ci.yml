@@ -18,10 +18,18 @@ permissions:
 jobs:
   run:
     name: Run
-    runs-on: ubuntu-latest
     strategy:
+      fail-fast: true
       matrix:
-        trunk: [continuous]
+        trunk: [continuous, snapshots]
+        include:
+          - trunk: continuous
+            # platforms: ["i386/ubuntu:latest", "ubuntu:latest", "Mac"]
+            platforms: ["i386/ubuntu:latest", "ubuntu:latest"]
+          - trunk: snapshots
+            # platforms: ["Arm", "i386/ubuntu:latest", "ubuntu:latest", "Mac", "Mac-Arm"]
+            platforms: ["i386/ubuntu:latest", "ubuntu:latest"]
+    runs-on: ${{ matrix.platforms }}
     steps:
       - name: 📥 Checkout Git Code
         uses: actions/checkout@v4
@@ -29,8 +37,8 @@ jobs:
         uses: ./
         with:
           revision: "latest"
-          trunk: ${{ matrix.trunk}}
+          trunk: ${{ matrix.trunk }}
       - name: 🧪 Output CHROMIUM_INSTALL_DIR_PATH
         shell: bash
         run: |
-          echo "Chromium install directory: '$CHROMIUM_INSTALL_DIR_PATH'"
+          echo "Chromium install directory: $CHROMIUM_INSTALL_DIR_PATH"

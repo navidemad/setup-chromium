@@ -1,0 +1,10 @@
+version: '3'
+services:
+  act-runner:
+    build: .
+    volumes:
+      - ./:/github/workspace
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - ACT_JOB=rspec_tests
+    command: ["act", "-P", "ubuntu-latest=catthehacker/ubuntu:act-22.04"]
