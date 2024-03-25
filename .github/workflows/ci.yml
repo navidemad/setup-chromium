@@ -8,31 +8,30 @@ on:
     branches: [main]
     paths-ignore: ["**.md"]
 
-# concurrency:
-#   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.event.pull_request.head.ref || github.head_ref || github.ref }}
-#   cancel-in-progress: true
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.event.pull_request.head.ref || github.head_ref || github.ref }}
+  cancel-in-progress: true
 
-# permissions:
-#   contents: read
+permissions:
+  contents: read
 
 jobs:
   run:
     name: Run
-    # strategy:
-    #   fail-fast: true
-    #   matrix:
-    #     trunk: [continuous, snapshots]
-    #     include:
-    #       - trunk: continuous
-    #         # platforms: ["i386/ubuntu:latest", "ubuntu:latest", "Mac"]
-    #         # platforms: ["i386/ubuntu:latest", "ubuntu:latest", "mac-latest"]
-    #         platforms: ["buildjet-2vcpu-ubuntu-2204"]
-    #       - trunk: snapshots
-    #         # platforms: ["Arm", "i386/ubuntu:latest", "ubuntu:latest", "Mac", "Mac-Arm"]
-    #         # platforms: ["i386/ubuntu:latest", "ubuntu:latest", "mac-latest"]
-    #         platforms: ["buildjet-2vcpu-ubuntu-2204"]
-    # runs-on: ${{ matrix.platforms }}
-    runs-on: buildjet-2vcpu-ubuntu-2204
+    strategy:
+      fail-fast: true
+      matrix:
+        trunk: [continuous, snapshots]
+        include:
+          - trunk: continuous
+            # platforms: ["i386/ubuntu:latest", "ubuntu:latest", "Mac"]
+            # platforms: ["i386/ubuntu:latest", "ubuntu:latest", "mac-latest"]
+            platforms: ["buildjet-2vcpu-ubuntu-2204"]
+          - trunk: snapshots
+            # platforms: ["Arm", "i386/ubuntu:latest", "ubuntu:latest", "Mac", "Mac-Arm"]
+            # platforms: ["i386/ubuntu:latest", "ubuntu:latest", "mac-latest"]
+            platforms: ["buildjet-2vcpu-ubuntu-2204"]
+    runs-on: ${{ matrix.platforms }}
     steps:
       - name: 📥 Checkout Git Code
         uses: actions/checkout@v4
@@ -44,4 +43,5 @@ jobs:
       - name: 🧪 Output CHROMIUM_BIN
         shell: bash
         run: |
-          echo "Chromium binary path: $CHROMIUM_BIN"
+          echo "Chromium binary path: $CHROMIUM_FOLDER"
+          echo "Chromium direction path: $CHROMIUM_BIN"
