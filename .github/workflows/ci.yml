@@ -25,10 +25,12 @@ jobs:
         include:
           - trunk: continuous
             # platforms: ["i386/ubuntu:latest", "ubuntu:latest", "Mac"]
-            platforms: ["i386/ubuntu:latest", "ubuntu:latest"]
+            # platforms: ["i386/ubuntu:latest", "ubuntu:latest", "mac-latest"]
+            platforms: ["ubuntu:latest"]
           - trunk: snapshots
             # platforms: ["Arm", "i386/ubuntu:latest", "ubuntu:latest", "Mac", "Mac-Arm"]
-            platforms: ["i386/ubuntu:latest", "ubuntu:latest"]
+            # platforms: ["i386/ubuntu:latest", "ubuntu:latest", "mac-latest"]
+            platforms: ["ubuntu:latest"]
     runs-on: ${{ matrix.platforms }}
     steps:
       - name: 📥 Checkout Git Code
@@ -38,7 +40,7 @@ jobs:
         with:
           revision: "latest"
           trunk: ${{ matrix.trunk }}
-      - name: 🧪 Output CHROMIUM_INSTALL_DIR_PATH
+      - name: 🧪 Output CHROMIUM_BIN
         shell: bash
         run: |
-          echo "Chromium install directory: $CHROMIUM_INSTALL_DIR_PATH"
+          echo "Chromium binary path: $CHROMIUM_BIN"

@@ -100,11 +100,13 @@ runs:
 
         echo "Chromium extracted to $CHROMIUM_INSTALL_TMP_DIR/chrome-$CHROMIUM_PLATFORM"
 
-        CHROMIUM_INSTALL_DIR_PATH="$PWD/chromium-bin"
-        ln -fsT "$CHROMIUM_INSTALL_TMP_DIR/chrome-$CHROMIUM_PLATFORM" "$CHROMIUM_INSTALL_DIR_PATH"
+        CHROMIUM_DIRECTORY="$PWD/chromium-bin"
+        ln -fsT "$CHROMIUM_INSTALL_TMP_DIR/chrome-$CHROMIUM_PLATFORM" "$CHROMIUM_DIRECTORY"
 
         echo "Changing owner and permissions for chrome_sandbox (requires privileges):\n"
-        sudo chown root:root "$CHROMIUM_INSTALL_DIR_PATH/chrome_sandbox"
-        sudo chmod 4755 "$CHROMIUM_INSTALL_DIR_PATH/chrome_sandbox"
+        sudo chown root:root "$CHROMIUM_DIRECTORY/chrome_sandbox"
+        sudo chmod 4755 "$CHROMIUM_DIRECTORY/chrome_sandbox"
 
-        echo "CHROMIUM_INSTALL_DIR_PATH=$CHROMIUM_INSTALL_DIR_PATH" >> $GITHUB_ENV
+        ls -la "$CHROMIUM_DIRECTORY/"
+        # echo "CHROMIUM_DIRECTORY=$CHROMIUM_DIRECTORY" >> $GITHUB_ENV
+        # echo "CHROMIUM_BIN=$CHROMIUM_DIRECTORY/chrome-$CHROMIUM_PLATFORM" >> $GITHUB_ENV
