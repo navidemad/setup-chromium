@@ -78,25 +78,24 @@ runs:
         fi
 
         snapshot_zip_url="${base_url}%2F$revision%2Fchrome-${{ steps.platform.outputs.platform }}.zip?alt=media"
-        install_tmp_dir="/tmp/chromium-$revision"
-        echo "$install_tmp_dir/chromium.zip"
-
-        echo "Downloading Chromium snapshot from ..."
-        rm -rf "$install_tmp_dir" || exit 1
-        mkdir -p "$install_tmp_dir" || exit 1
-        curl --silent -L -f "$snapshot_zip_url" --output "$install_tmp_dir/chromium.zip" || exit 1
+        echo "Downloading Chromium snapshot $revision..."
+        chromium_install_dir="$PWD/chromium-$revision"
+        rm -rf "$chromium_install_dir" || exit 1
+        mkdir -p "$chromium_install_dir" || exit 1
+        curl --silent -L -f "$snapshot_zip_url" --output "$chromium_install_dir/chromium.zip" || exit 1
 
         echo "Unzipping Chromium snapshot..."
-        unzip -qq "$install_tmp_dir/chromium.zip" -d "$install_tmp_dir" || exit 1
+        unzip -qq "$chromium_install_dir/chromium.zip" -d "$chromium_install_dir" || exit 1
+        rm -f "$chromium_install_dir/chromium.zip"
 
         chromium_directory="$install_tmp_dir/chrome-${{ steps.platform.outputs.platform }}"
 
         if [[ ${{ steps.platform.outputs.platform }} == "linux" ]]; then
-          sudo chown root:root "$chromium_directory/chrome_sandbox"
           sudo chmod 4755 "$chromium_directory/chrome_sandbox"
+          sudo chmod 4755 "$chromium_directory/chrome"
         fi
+
+        ls -laR "$chromium_directory"
 
         echo "CHROMIUM_DIRECTORY=$chromium_directory" >> $GITHUB_ENV
         echo "CHROMIUM_BIN=$chromium_directory/chrome" >> $GITHUB_ENV
-
-        ls -laR "$chromium_directory"
