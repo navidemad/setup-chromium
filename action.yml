@@ -15,7 +15,7 @@ runs:
     - name: Check prerequisites
       shell: bash
       run: |
-        if ! command -v unzip &> /dev/null; then
+        if ! command -v jar &> /dev/null; then
           echo "unzip is required but not installed. Please install unzip." >&2
           exit 1
         fi
@@ -88,14 +88,14 @@ runs:
         unzip -qq "$chromium_install_dir/chromium.zip" -d "$chromium_install_dir" || exit 1
         rm -f "$chromium_install_dir/chromium.zip"
 
-        chromium_directory="$install_tmp_dir/chrome-${{ steps.platform.outputs.platform }}"
+        chromium_directory="$chromium_install_dir/chrome-${{ steps.platform.outputs.platform }}"
 
         if [[ ${{ steps.platform.outputs.platform }} == "linux" ]]; then
           sudo chmod 4755 "$chromium_directory/chrome_sandbox"
           sudo chmod 4755 "$chromium_directory/chrome"
         fi
 
-        ls -laR "$chromium_directory"
+        ls -lah "$chromium_directory"
 
         echo "CHROMIUM_DIRECTORY=$chromium_directory" >> $GITHUB_ENV
         echo "CHROMIUM_BIN=$chromium_directory/chrome" >> $GITHUB_ENV

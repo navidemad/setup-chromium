@@ -1,4 +1,4 @@
-name: CI
+name: ci
 
 on:
   pull_request:
@@ -13,8 +13,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  run:
-    name: Run
+  ci:
+    name: ci
     strategy:
       fail-fast: true
       matrix:
@@ -48,4 +48,4 @@ jobs:
         with:
           ruby-version: '3.3'
       - name: 💎 Run rails dummy app to test Chromium
-        run: ruby test.rb
+        run: ruby scripts/test.rb

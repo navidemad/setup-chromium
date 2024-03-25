@@ -1,9 +1,0 @@
-
-version: '3'
-services:
-  act-runner:
-    build: .
-    volumes:
-      - ./:/github/workspace
-      - /var/run/docker.sock:/var/run/docker.sock
-    command: ["act", "-j", "run_local", "-P", "ubuntu:latest=catthehacker/ubuntu:act-22.04"]

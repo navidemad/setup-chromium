@@ -1,0 +1,27 @@
+name: local
+
+on: {}
+
+jobs:
+  local:
+    name: local
+    runs-on: ${{ env.act_image_modified }}
+    steps:
+      - name: 📥 Checkout Git Code
+        uses: actions/checkout@v4
+      - name: 📦 Install Chromium Package
+        uses: ./
+        with:
+          revision: "latest"
+          trunk: ${{ env.chromium_trunk }}
+      - name: 🧪 Output CHROMIUM_DIRECTORY and CHROMIUM_BIN
+        shell: bash
+        run: |
+          echo "CHROMIUM_DIRECTORY=$CHROMIUM_DIRECTORY"
+          echo "CHROMIUM_BIN=$CHROMIUM_BIN"
+      - name: 💎 Install Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+      - name: 💎 Run rails dummy app to test Chromium
+        run: ruby test.rb
