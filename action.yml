@@ -76,8 +76,8 @@ runs:
 
         out() {
         case $(web) in
-          *curl*) curl --fail -sL $@;;
-          *wget*) wget -qO - $@;;
+          *curl*) curl --fail -L $@;;
+          *wget*) wget -O - $@;;
         esac
         }
 
