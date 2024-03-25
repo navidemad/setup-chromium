@@ -28,3 +28,9 @@ jobs:
         run: |
           echo "Chromium direction path: \"$CHROMIUM_DIRECTORY\""
           echo "Chromium binary path: \"$CHROMIUM_BIN\""
+      - name: 💎 Install Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+      - name: 💎 Run rails dummy app to test Chromium
+        run: ruby test.rb
