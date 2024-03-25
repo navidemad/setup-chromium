@@ -24,4 +24,11 @@ jobs:
         with:
           ruby-version: "3.3"
       - name: 💎 Run rails dummy app to test Chromium
-        run: ruby scripts/system_tests.rb
+        env:
+          CI: true
+          RAILS_ENV: test
+          NODE_ENV: test
+          RAKE_ENV: test
+        run: |
+          ruby --version
+          ruby scripts/system_tests.rb

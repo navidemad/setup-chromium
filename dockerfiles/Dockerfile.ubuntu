@@ -1,4 +1,4 @@
 ARG ACT_IMAGE
 FROM $ACT_IMAGE
 
-RUN apt-get update -qq && apt-get install -y curl git unzip ruby && rm -rf /var/lib/apt/lists/*
+RUN apt-get update -qq && apt-get install -y curl git unzip && rm -rf /var/lib/apt/lists/*
