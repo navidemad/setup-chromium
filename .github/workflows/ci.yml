@@ -23,13 +23,11 @@ jobs:
           - trunk: continuous
             # platforms: ["i386/ubuntu:latest", "ubuntu:latest", "Mac"]
             # platforms: ["i386/ubuntu:latest", "ubuntu:latest", "mac-latest"]
-            # platforms: ["buildjet-2vcpu-ubuntu-2204"]
-            platforms: ["ubuntu:latest"]
+            platforms: ["buildjet-2vcpu-ubuntu-2204"]
           - trunk: snapshots
             # platforms: ["Arm", "i386/ubuntu:latest", "ubuntu:latest", "Mac", "Mac-Arm"]
             # platforms: ["i386/ubuntu:latest", "ubuntu:latest", "mac-latest"]
-            # platforms: ["buildjet-2vcpu-ubuntu-2204"]
-            platforms: ["ubuntu:latest"]
+            platforms: ["buildjet-2vcpu-ubuntu-2204"]
     runs-on: ${{ matrix.platforms }}
     steps:
       - name: 📥 Checkout Git Code
