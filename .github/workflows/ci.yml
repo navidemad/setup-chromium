@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+    paths-ignore: ["**.md"]
+  push:
+    branches: [main]
+    paths-ignore: ["**.md"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.event.pull_request.head.ref || github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    name: Run
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        trunk: [continuous]
+    steps:
+      - name: 📥 Checkout Git Code
+        uses: actions/checkout@v4
+      - name: 📦 Install Chromium Package
+        uses: ./
+        with:
+          revision: "latest"
+          trunk: ${{ matrix.trunk}}
+      - name: 🧪 Output CHROMIUM_INSTALL_DIR_PATH
+        shell: bash
+        run: |
+          echo "Chromium install directory: '$CHROMIUM_INSTALL_DIR_PATH'"
