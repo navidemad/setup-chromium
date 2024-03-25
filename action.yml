@@ -97,7 +97,11 @@ runs:
           sudo chmod 4755 "$chromium_directory/chrome_sandbox"
         fi
 
-        ls -la "$chromium_directory/chrome-${{ steps.platform.outputs.platform }}/"
-
         echo "CHROMIUM_DIRECTORY=$chromium_directory" >> $GITHUB_ENV
         echo "CHROMIUM_BIN=$chromium_directory/chrome-${{ steps.platform.outputs.platform }}/chrome" >> $GITHUB_ENV
+
+        ls -laR "$chromium_directory"
+
+        echo "##############"
+
+        ls -laR "$install_tmp_dir/chrome-${{ steps.platform.outputs.platform }}"
