@@ -49,7 +49,7 @@ Capybara.register_driver(:custom_cuprite) do |app|
       opts["disable-site-isolation-trials"] = nil
       opts["disable-features"] = "IsolateOrigins,DialMediaRouteProvider,MediaRouter"
       opts["remote-allow-origins"] = "*"
-      opts["no-sandbox"] = nil if ENV["CI"]
+      opts["no-sandbox"] = nil# if ENV["CI"]
     end
 
   options =
@@ -57,7 +57,7 @@ Capybara.register_driver(:custom_cuprite) do |app|
       browser_headfull = ENV.fetch("WITH_BROWSER", false).in?(%w[y 1 yes true])
       opts[:browser_options] = browser_options
       opts[:js_errors] = true
-      opts[:window_size] = [600, 400]
+      opts[:window_size] = [800, 600]
       opts[:headless] = browser_headfull ? false : "new"
       opts[:inspector] = browser_headfull ? true : false
       opts[:process_timeout] = ENV.fetch("CUPRITE_PROCESS_TIMEOUT", 30).to_f

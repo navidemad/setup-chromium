@@ -15,7 +15,6 @@ runs:
     - name: Check prerequisites
       shell: bash
       run: |
-        ruby -v
         if ! command -v unzip &> /dev/null; then
           echo "unzip is required but not installed. Please install unzip." >&2
           exit 1
@@ -92,11 +91,10 @@ runs:
         chromium_directory="$chromium_install_dir/chrome-${{ steps.platform.outputs.platform }}"
 
         if [[ ${{ steps.platform.outputs.platform }} == "linux" ]]; then
+          sudo chown root:root "$chromium_directory/chrome_sandbox"
           sudo chmod 4755 "$chromium_directory/chrome_sandbox"
-          sudo chmod 4755 "$chromium_directory/chrome"
+          export CHROME_DEVEL_SANDBOX="$chromium_directory/chrome_sandbox"
         fi
-
-        ls -lah "$chromium_directory"
 
         echo "CHROMIUM_DIRECTORY=$chromium_directory" >> $GITHUB_ENV
         echo "CHROMIUM_BIN=$chromium_directory/chrome" >> $GITHUB_ENV
