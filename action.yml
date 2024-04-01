@@ -89,12 +89,13 @@ runs:
         rm -f "$chromium_install_dir/chromium.zip"
 
         chromium_directory="$chromium_install_dir/chrome-${{ steps.platform.outputs.platform }}"
+        echo "CHROMIUM_DIRECTORY=$chromium_directory" >> $GITHUB_ENV
 
         if [[ ${{ steps.platform.outputs.platform }} == "linux" ]]; then
           sudo chown root:root "$chromium_directory/chrome_sandbox"
           sudo chmod 4755 "$chromium_directory/chrome_sandbox"
           export CHROME_DEVEL_SANDBOX="$chromium_directory/chrome_sandbox"
+          echo "CHROMIUM_BIN=$chromium_directory/chrome" >> $GITHUB_ENV
+        elif [[ ${{ steps.platform.outputs.platform }} == "mac" ]]; then
+          echo "CHROMIUM_BIN=$chromium_directory/Chromium.app" >> $GITHUB_ENV
         fi
-
-        echo "CHROMIUM_DIRECTORY=$chromium_directory" >> $GITHUB_ENV
-        echo "CHROMIUM_BIN=$chromium_directory/chrome" >> $GITHUB_ENV
